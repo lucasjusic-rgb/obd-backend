@@ -1,0 +1,17 @@
+{
+  "name": "obd-ai-mechanic-backend",
+  "version": "1.0.0",
+  "description": "Backend relay server for the AI Mechanic Flutter app. Keeps the Groq API key server-side and exposes /api/diagnose and /api/diagnose/chat.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "openai": "^4.67.3"
+  }
+}

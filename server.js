@@ -89,7 +89,45 @@ app.post('/api/diagnose/chat', async (req, res) => {
     res.status(500).json({ error: 'Failed to get chat reply', detail: String(err) });
   }
 });
+// POST /api/maintenance
+// body: { vehicle, mileageKm, activeCodes: ["P0301", ...] }
+app.post('/api/maintenance', async (req, res) => {
+  try {
+    const { vehicle, mileageKm, activeCodes = [] } = req.body;
 
+    const completion = await groq.chat.completions.create({
+      model: MODEL,
+      messages: [
+        {
+          role: 'system',
+          content: `You are an ASE-certified master mechanic estimating a maintenance schedule.
+Given a vehicle description, current mileage, and any active trouble codes, respond ONLY with
+valid JSON, no markdown fences, in exactly this shape:
+{
+  "oilChange": "short status, e.g. 'Due now' or 'Due in ~2,000 km' or 'Recently done, likely fine'",
+  "tireRotation": "short status, same style",
+  "brakeInspection": "short status, same style",
+  "note": "one honest sentence noting this is an estimate based on typical intervals for this vehicle and mileage, not a guarantee, and real service history should be checked"
+}
+Base estimates on typical manufacturer intervals for this vehicle type and the given mileage.
+If mileage is unknown, give a general estimate based on vehicle age instead and say so in "note".`,
+        },
+        {
+          role: 'user',
+          content: `Vehicle: ${vehicle}\nCurrent mileage: ${mileageKm ? mileageKm + ' km' : 'unknown'}\nActive trouble codes: ${activeCodes.join(', ') || 'none'}`,
+        },
+      ],
+      temperature: 0.3,
+      response_format: { type: 'json_object' },
+    });
+
+    const text = completion.choices[0]?.message?.content ?? '{}';
+    res.json(JSON.parse(text));
+  } catch (err) {
+    console.error('Maintenance estimate error:', err);
+    res.status(500).json({ error: 'Failed to get maintenance estimate', detail: String(err) });
+  }
+});
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 3000;

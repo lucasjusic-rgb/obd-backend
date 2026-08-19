@@ -18,7 +18,7 @@ const groq = new OpenAI({
 
 // Free, fast, solid general-purpose model on Groq. Swap if you want to try
 // another (see console.groq.com for the current model list).
-const MODEL = 'llama-3.3-70b-versatile';
+const MODEL = 'openai/gpt-oss-120b';
 
 const MECHANIC_SYSTEM_PROMPT = `You are an ASE-certified master mechanic AI embedded in a car diagnostics app.
 You are given a diagnostic trouble code (DTC) and live sensor data from the vehicle.
